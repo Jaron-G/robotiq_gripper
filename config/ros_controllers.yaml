@@ -1,0 +1,12 @@
+gripper_controller:
+  type: effort_controllers/JointTrajectoryController
+  joints:
+    - robotiq_85_left_knuckle_joint
+  gains:
+    robotiq_85_left_knuckle_joint:
+      p: 20.0
+      i: 0.1
+      d: 0.0
+      i_clamp: 0.2
+      antiwindup: false
+      publish_state: true

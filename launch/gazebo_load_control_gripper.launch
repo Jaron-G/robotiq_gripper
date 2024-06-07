@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+
+<launch>
+    <!-- Gazebo options -->
+    <!-- Note: if you set paused to be true, remember to unpause the simulation in the gui to start the simulation-->
+    <arg name="paused" default="false" doc="Start Gazebo paused"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(find robotiq_gripper)/urdf/robotiq_description.xacro" />
+    <!-- Start Rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotiq_gripper)/config/gripper.rviz" required="true" />
+
+    <!-- Start Gazebo paused to allow the controllers to pickup the initial pose -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" pass_all_args="true">
+        <arg name="paused" value="$(arg paused)"/>
+    </include>
+    <!-- Spawn the urdf model -->
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot"
+    respawn="false" output="screen" />
+
+    <!-- Add configuration file for the Gazebo publisher controller -->
+    <rosparam file="$(find robotiq_gripper)/config/gazebo_controllers.yaml" />
+    <!-- Add configuration file for the ros joint controller -->
+    <rosparam file="$(find robotiq_gripper)/config/ros_controllers.yaml" />
+    <!-- Spawn the Gazebo ROS controllers -->
+    <node name="gazebo_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="joint_state_controller gripper_controller" />
+
+    <!-- Publish tf -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+</launch>
